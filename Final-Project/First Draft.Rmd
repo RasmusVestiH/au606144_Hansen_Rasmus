@@ -1,0 +1,89 @@
+---
+title: "First Draft of Code"
+output: html_document
+data: 4/11-2020
+authors: Rasmus Vesti Hansen & Emil Buus Thomsen
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+pacman:: p_load(tidyverse)
+```
+
+This will be the first draft for our final project. In this file we will try to clean the data gathered on abortions, average income and population based on municipalities in Denmark. 
+The sources for our data are the following: 
+Average income in Danish municipalities: https://www.statistikbanken.dk/INDKP101 
+Abortions in Danish municipalities: https://www.esundhed.dk/home/registre/register%20over%20provokerede%20aborter 
+Population in Danish municipalities: http://www.noegletal.dk/ (Here we selected all municipalities and searched for population from 1995-2020)
+
+After having found the correct data we use OpenRefine to clean the Data into .csv files so it is easy to load into R. 
+In OpenRefine we use the transform tool to clean the data by replacing the "." with nothing ("") so the numbers will be correct. After this we use value.toNumber() to make the columns numeric. 
+
+After we made a shared repository on GitHub so it would be easy for both us to access the data and scripts. 
+
+Then we are defining our data into Data Frames
+```{r}
+AverageIncome <- read.csv("Rigtig_Data_CSV/Income_male_and_female.csv")
+AbortionsData <- read.csv("Rigtig_Data_CSV/Abortions_DK_1995_2018.csv")
+PopulationMun <- read.csv("Rigtig_Data_CSV/Population_pr_municipalities.csv")
+
+options(max.print = 99999)
+
+
+```
+
+AverageIncome
+
+AbortionsData
+
+PopulationMun
+
+In the data we also have a problem as the dataset on the number of abortions have a "<5" value, which is being classified as a character and does not count as a specific. What should we do? 
+Next we should write a chunk for validating the numbers of the ages. As we have the total ages and some undefined values of "<5" we should be able to calculate values of the total in the municipalities of all ages. Will be difficult with Ærø fx
+But do we need all the different age groups? Is it relevant what the age is in correlation with the income? 
+```{r}
+AbortKommuneAlleAldre <- dplyr::filter(AbortionsData, Alder == "Alle aldre") 
+
+
+```
+AbortKommuneAlleAldre
+
+
+
+```{r}
+column_list <- AbortKommuneAlleAldre[,3:length(names(AbortKommuneAlleAldre))]
+
+column_list_num <- NULL
+column_list_num <- as.list(column_list_num)
+
+for (col in column_list){
+  num_col <- as.numeric(col)
+  append(column_list_num, num_col)
+}
+
+column_list <- as.data.frame(column_list)
+
+AbortNumDF <- cbind(AbortKommuneAlleAldre[,1],column_list) %>% 
+.[1:96, ]
+
+```
+
+By setting the index to 1:96 we exclude "udland" which is a row we don't have in our populations data frame. That row consists of abortions that happened abroad of Denmark, which we cannot trace to municipalities. 
+
+The plan now is for AbortNumDF to calculate through PopulationCom the abortions pr. capita instead of the number of abortions in the municipality as that would give a more representative view on the data. Regarding this it is also worth considering whether to have the population in municipalities of female or both genders. For now we use the dataset with both genders. 
+
+```{r}
+  if row.names(AbortNumDF$`AbortKommuneAlleAldre[, 1]`) == row.names(PopulationMun$Municipalities){
+  rowsum(AbortNumDF, PopulationMun)  
+  }
+  
+```
+?cbind
+
+
+After this we want to visualize the data on abortions pr. capita in correalation with the AverageIncome and see if there is a connection. 
