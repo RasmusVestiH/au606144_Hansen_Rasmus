@@ -1,7 +1,7 @@
 ---
 title: "Spatial Segregation: Preston Crime continued"
-author: "Adela Sobotkova"
-date: "11/12/2020 updated `r format(Sys.time(), '%B %d, %Y')`"
+author: "Rasmus Vesti Hansen"
+date: "14/03/2021 updated `r format(Sys.time(), '%B %d, %Y')`"
 output: 
   html_document:
     toc: true
@@ -33,13 +33,14 @@ The first step is to compute the optimal bandwidth for kernel smoothing under th
 
 ```{r bandwidth-exercise, eval = FALSE}
 # Install spatialkernel (the CRAN version is outdated, so you need to grab the most recent maintained version from Github). You may need to install.packages("devtools") and then run:
-#install.packages("withr")
-install.packages("devtools") #select 1 for all in console
-devtools::install_github("becarioprecario/spatialkernel")
 
-#library(withr)
-library(devtools)
+#install.packages("withr")
+#install.packages("devtools") #select 1 for all in console
+#devtools::install_github("becarioprecario/spatialkernel")
+
 # Libraries
+library(withr)
+library(devtools)
 library(spatstat)
 library(spatialkernel)
 
